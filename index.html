@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>liveperson widget</title>
+  <meta name="viewport" content="user-scalable=0, width=device-width, initial-scale=1.0,  minimum-scale=1.0, maximum-scale=1.0">
+  <link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet"  href="lib/jquery.json-viewer.css">
+  <style>
+    td{width:1px;white-space:nowrap;}
+  </style>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="https://lpcdn.lpsnmedia.net/webagent/client-SDK.min.js"></script>
+  <script src="lib/jquery.json-viewer.js"></script>
+  <script src="widgetwidget.js"></script>
+</head>
+<body>
+
+<!--Header-->
+<ul class="nav nav-tabs">
+  <li role="presentation" id="btn_1" onclick="switchToTab(1)" class="navtab"><a href="#">Visit Info Parameters</a></li>
+  <li role="presentation" id="btn_2" onclick="switchToTab(2)" class="navtab active"><a href="#">Public Model Updates</a></li>
+  <li role="presentation" id="btn_3" onclick="switchToTab(3)" class="navtab"><a href="#">Test SDK Methods</a></li>
+</ul>
+
+<!--Tab 1-->
+<div class="col-12 tab" id="tab_1">
+  <h2>Visit Info Parameters</h2>
+
+  <table class="table table-condensed" id="urlParamsTable">
+    <tr><th>Key</th><th>Value</th></tr>
+  </table>
+</div>
+
+<!--Tab 2-->
+<div class="col-12 tab" id="tab_2">
+  <h2>Client SDK Binding Output</h2>
+
+  Bind state indicators (click to toggle logging function bound or unbound):
+  <div class="btn-toolbar" role="toolbar">
+    <div class="btn-group" role="group" id="bindIndicators">
+
+    </div>
+  </div>
+
+  <br />
+  <br />
+
+  Event Filter: <select id="eventFilter"></select> |
+  <input id="showUnchanged" type="checkbox"> Show unchanged updates |
+  <button class="btn btn-default" id="toggleCollapse" onclick="bindToggleCollapse()">Expand All</button>
+
+  <table class="table table-condensed" id="bindOutput">
+    <tr><th>Timestamp</th><th>Key</th><th>New Value</th></tr>
+  </table>
+</div>
+
+<!--Tab 3-->
+<div class="col-12 tab" id="tab_3">
+  <h2>Other SDK Methods</h2>
+  <a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#supported-commands" target="_blank">Agent Workspace Widget SDK Methods</a>
+
+  <h3>command > Write StructuredContent</h3>
+  <i>To use the sample SC you must whitelist the image domain (https://www.crixeo.com/) in sitesettings: messaging.rich.content.valid.urls </i>
+  <textarea class="form-control" rows="10" id="richContent"></textarea>
+  <div class="btn-group" role="group">
+    <button id="sendRichContent" type="button" class="btn btn-default" onclick="sendRichContent()">Send</button>
+    <button id="revertRichContent" type="button" class="btn btn-default" onclick="populateSampleSC()">Restore Sample</button>
+  </div>
+
+  <h3>command > Write ChatLine</h3>
+  <input class="form-control" rows="10" id="chatLine" value="howdy pardner!">
+  <div class="btn-group" role="group">
+    <button id="sendChatLine" type="button" class="btn btn-default" onclick="sendChatLine()">Write</button>
+  </div>
+
+  <h3>get</h3>
+  <div id="getButtons">
+    <div>
+      <b>Predefined paths:</b>
+      <div id="predefinedGetButtons"></div>
+      <br />
+      <b>Custom path:</b> <input id="customGetPath" value="chatInfo.rtSessionId">
+      <button id="getButton_customPath" type="button" class="btn btn-default" onclick="getCustomPath()">Get</button><br />
+      <pre id="getOutput"></pre>
+  </div>
+
+    <h3>command > Send Notification</h3>
+    <div class="btn-group" role="group">
+      <button id="sendNotification" type="button" class="btn btn-default" onclick="sendNotification()">Notify</button>
+    </div>
+
+</div>
+
+</body>
+</html>
