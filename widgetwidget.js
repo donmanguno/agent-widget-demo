@@ -250,25 +250,26 @@ const printData = (data) => {
 	let newEntry = $('<tr>').addClass(data.key).addClass('bindingOutputRow')
 		.append($('<td>').text(timeString))
 		.append($('<td>').text(data.key))
-		.append($('<td>').css('padding','0').html(formatDataValue(data)));
+		// .append($('<td>').css('padding','0').html(formatDataValue(data)));
+        .append($('<td>').jsonViewer(data.newValue, bindJSONOptions));
 	if (unchanged) newEntry.addClass('unchanged');
 	let eventFilterValue = $('select#eventFilter').val();
 	if ((eventFilterValue !== data.key && eventFilterValue !== 'none') || (unchanged && !$('input#showUnchanged')[0].checked)) { newEntry.hide() }
 	$('table#bindOutput tr:first').after(newEntry)
 };
 
-const formatDataValue = (data) => {
-	let table = $('<table>').addClass('table table-condensed').css('margin','0');
-	for (let key in data.newValue) {
-		if (data.newValue.hasOwnProperty(key)) {
-			table.prepend($('<tr>')
-				.append($('<td>').text(key))
-				.append($('<td>').jsonViewer(data.newValue, bindJSONOptions))
-			)
-		}
-	}
-	return table;
-};
+// const formatDataValue = (data) => {
+// 	let table = $('<table>').addClass('table table-condensed').css('margin','0');
+// 	for (let key in data.newValue) {
+// 		if (data.newValue.hasOwnProperty(key)) {
+// 			table.prepend($('<tr>')
+// 				.append($('<td>').text(key))
+// 				.append($('<td>').jsonViewer(data.newValue, bindJSONOptions))
+// 			)
+// 		}
+// 	}
+// 	return table;
+// };
 
 const bindToggleCollapse = () => {
     bindJSONOptions.collapsed = !bindJSONOptions.collapsed;
