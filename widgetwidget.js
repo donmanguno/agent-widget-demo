@@ -134,6 +134,10 @@ const dataSources = {
             }
         ]
     },
+    sampleSCMeta = [	//metadata is optional
+        {"type":"ExternalId","id":"running364"},
+        {"type":"ExternalId","id":"soccer486"}
+    ],
 	initDelay = 500,
 	selected = 2,
 	urlParams = {},
@@ -164,17 +168,19 @@ const switchToTab = (num) => {
 };
 
 const visitorFocusedCallback = (data) => {
-    console.log(`widgetwidget visitorFocusedCallback data: ${JSON.stringify(data)}`);
-    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {console.log('widgetwidget focused on '+visitorName)})
+    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {
+        printLogLine('[visitorFocusedCallback] focused on '+visitorName)
+    })
 };
 
 const visitorBlurredCallback = (data) => {
-    console.log(`widgetwidget visitorBlurredCallback data: ${JSON.stringify(data)}`);
-    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {console.log('widgetwidget '+visitorName+' unfocused')})
+    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {
+        printLogLine('[visitorBlurredCallback] '+visitorName+' unfocused')
+    })
 };
 
 const notificationCallback = (notificationData) => {
-    console.log(`widgetwidget notificationCallback data: ${JSON.stringify(notificationData)}`)
+    printLogLine(`[notificationCallback] data: ${JSON.stringify(notificationData)}`)
 };
 
 // query params tab
@@ -258,19 +264,6 @@ const printData = (data) => {
 	$('table#bindOutput tr:first').after(newEntry)
 };
 
-// const formatDataValue = (data) => {
-// 	let table = $('<table>').addClass('table table-condensed').css('margin','0');
-// 	for (let key in data.newValue) {
-// 		if (data.newValue.hasOwnProperty(key)) {
-// 			table.prepend($('<tr>')
-// 				.append($('<td>').text(key))
-// 				.append($('<td>').jsonViewer(data.newValue, bindJSONOptions))
-// 			)
-// 		}
-// 	}
-// 	return table;
-// };
-
 const bindToggleCollapse = () => {
     bindJSONOptions.collapsed = !bindJSONOptions.collapsed;
     $('table#bindOutput a.json-toggle').click();
@@ -290,7 +283,6 @@ const filterEvents = () => {
 };
 
 const bindDataSourcePromise = (path) => {
-    console.log('widgetwidget binding '+path);
     updateBindIndicator(path);
     return new Promise((resolve, reject) => {
         lpTag.agentSDK.bind(path,
@@ -298,10 +290,12 @@ const bindDataSourcePromise = (path) => {
             (err) => {
                 if (err) {
                     updateBindIndicator(path, 0);
+                    printLogLine('[bind] ERROR binding '+path+' failed');
                     reject(err);
                 } else {
                     dataSources[path].bound = true;
                     updateBindIndicator(path, 1);
+                    printLogLine('[bind] bound '+path);
                     resolve(true)
                 }
             })
@@ -309,7 +303,6 @@ const bindDataSourcePromise = (path) => {
 };
 
 const unbindDataSourcePromise = (path) => {
-    console.log('widgetwidget unbinding '+path);
     updateBindIndicator(path);
     return new Promise((resolve, reject) => {
         lpTag.agentSDK.unbind(path,
@@ -317,10 +310,12 @@ const unbindDataSourcePromise = (path) => {
             (err) => {
                 if (err) {
                     updateBindIndicator(path, 1);
+                    printLogLine('[unbind] ERROR unbinding '+path+' failed');
                     reject(err)
                 } else {
                     dataSources[path].bound = false;
                     updateBindIndicator(path, 0);
+                    printLogLine('[unbind] unbound '+path);
                     resolve(true)
                 }
             })
@@ -345,23 +340,34 @@ const updateBindIndicator = (path, state) => {
 };
 
 // sdk methods tab
-// TODO: Add logging with command callback
 
-const populateSampleSC = () => $('textarea#richContent').val(JSON.stringify(sampleSC, null, 4));
+const populateSampleSC = () => {
+    $('textarea#richContent').val(JSON.stringify(sampleSC, null, 4));
+    $('textarea#richContentMetadata').val(JSON.stringify(sampleSCMeta, null, 4));
+};
 
 const sendRichContent = () => {
     lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.writeSC, {
-        json: JSON.parse($('textarea#richContent').val())
+        json: JSON.parse($('textarea#richContent').val()),
+        metadata: JSON.parse($('textarea#richContentMetadata').val())
+    }, error => {
+        if (error) printLogLine(`[command > writeSC] ERROR ${error}`);
+        else printLogLine(`[command > writeSC] success`)
     });
 };
 
 const sendChatLine = () => {
     lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.write, {
         text: $('input#chatLine').val()
+    }, error => {
+        if (error) printLogLine(`[command > write] ERROR ${error}`);
+        else printLogLine(`[command > write] success`)
     });
 };
 
-const getCustomPath = () => { getCommand($('input#customGetPath')[0].value) };
+const getCustomPath = () => {
+    getCommand($('input#customGetPath')[0].value)
+};
 
 const createGetButtons = () => {
     let buttonsDiv = $('div#predefinedGetButtons');
@@ -381,14 +387,29 @@ const createGetButtons = () => {
 
 const getCommand = (path) => {
     lpTag.agentSDK.get(path, data => {
-        $('pre#getOutput').jsonViewer(data)
+        $('pre#getOutput').jsonViewer(data);
+        printLogLine(`[get] successfully got ${path}`)
     }, error => {
-        $('pre#getOutput').jsonViewer(error)
+        if (error) {
+            $('pre#getOutput').jsonViewer(error);
+            printLogLine(`[get] ERROR getting ${path}: ${error}`)
+        }
     })
 };
 
 const sendNotification = () => {
-    lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.notify)
+    lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.notify, {}, error => {
+        if (error) printLogLine(`[command > notify] ERROR ${error}`);
+        else printLogLine(`[command > notify] success`)
+    })
+};
+
+// widget log tab
+
+const printLogLine = (logLine) => {
+    let timestamp = new Date().toLocaleTimeString('en-gb');
+    let line = $('<span>').text(timestamp+' '+logLine+'\n');
+    $('pre#logOutput').prepend(line)
 };
 
 // init
@@ -404,11 +425,11 @@ const init = () => {
 	populateSampleSC();
 	createGetButtons();
     switchToTab(selected);
-	console.log('widgetwidget started');
+	printLogLine('[widget] initialized');
 };
 
 $(function(){
 	hideAllTabs();
-	console.log('widgetwidget initializing in '+initDelay+' ms...');
+	printLogLine('[widget] initializing in '+initDelay+' ms...');
 	setTimeout(init,initDelay);
 });
