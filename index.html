@@ -51,7 +51,7 @@
   <br />
   <br />
 
-  Event Filter: <select id="eventFilter"></select> |
+  Event Filter: <select id="eventFilter" title="eventFilter"></select> |
   <!--<input id="showUnchanged" type="checkbox"> Show unchanged updates |-->
   <button class="btn btn-default" id="toggleCollapse" onclick="bindToggleCollapse()">Expand All</button>
 
@@ -72,7 +72,7 @@
       <b>Predefined paths:</b>
       <div id="predefinedGetButtons"></div>
       <br />
-      <b><a href="https://developers.liveperson.com/agent-workspace-sdk-public-model.html" target="_blank">Custom path:</a></b> <input id="customGetPath" value="chatInfo.rtSessionId">
+      <b><label for="customGetPath"><a href="https://developers.liveperson.com/agent-workspace-sdk-public-model.html" target="_blank">Custom path:</a></label></b> <input id="customGetPath" value="chatInfo.rtSessionId">
       <button id="getButton_customPath" type="button" class="btn btn-primary" onclick="getCustomPath()">Get</button><br />
       <pre id="getOutput"></pre>
     </div>
@@ -84,9 +84,9 @@
   <h4>command: Write StructuredContent</h4>
   <i>To use the sample SC you must whitelist the image domain (https://www.crixeo.com/) in sitesettings: messaging.rich.content.valid.urls </i>
   <br>
-  Content:
+  <label for="richContent">Content:</label>
   <textarea class="form-control" rows="10" id="richContent"></textarea>
-  Metadata (optional):
+  <label for="richContentMetadata">Metadata (optional):</label>
   <textarea class="form-control" rows="4" id="richContentMetadata"></textarea>
   <div class="btn-group" role="group">
     <button id="sendRichContent" type="button" class="btn btn-primary" onclick="sendRichContent()">Send</button>
@@ -95,7 +95,7 @@
   <br />
 
   <h4>command: Write ChatLine</h4>
-  <input class="form-control" id="chatLine" value="howdy pardner!">
+  <input class="form-control" id="chatLine" value="howdy pardner!" title="chatLine">
   <div class="btn-group" role="group">
     <button id="sendChatLine" type="button" class="btn btn-primary" onclick="sendChatLine()">Write</button>
   </div>
