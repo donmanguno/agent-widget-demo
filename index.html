@@ -41,7 +41,7 @@
 <div class="col-12 tab" id="tab_2">
   <h2>Client SDK Binding Output</h2>
 
-  Bind state indicators (click to toggle logging function bound or unbound):
+  Bind state indicators (click to toggle bind/unbind the logging function):
   <div class="btn-toolbar" role="toolbar">
     <div class="btn-group" role="group" id="bindIndicators">
 
@@ -52,7 +52,7 @@
   <br />
 
   Event Filter: <select id="eventFilter"></select> |
-  <input id="showUnchanged" type="checkbox"> Show unchanged updates |
+  <!--<input id="showUnchanged" type="checkbox"> Show unchanged updates |-->
   <button class="btn btn-default" id="toggleCollapse" onclick="bindToggleCollapse()">Expand All</button>
 
   <table class="table table-condensed" id="bindOutput">
@@ -63,22 +63,25 @@
 <!--Tab 3-->
 <div class="col-12 tab" id="tab_3">
   <h2>Other SDK Methods</h2>
-  <a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#supported-commands" target="_blank">Agent Workspace Widget SDK Methods</a>
+  <a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html" target="_blank">Agent Workspace Widget SDK Methods</a>
+  <br />
 
-  <h3>get</h3>
+  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#get" target="_blank">get</a></h3>
   <div id="getButtons">
     <div>
       <b>Predefined paths:</b>
       <div id="predefinedGetButtons"></div>
       <br />
-      <b>Custom path:</b> <input id="customGetPath" value="chatInfo.rtSessionId">
-      <button id="getButton_customPath" type="button" class="btn btn-default" onclick="getCustomPath()">Get</button><br />
+      <b><a href="https://developers.liveperson.com/agent-workspace-sdk-public-model.html" target="_blank">Custom path:</a></b> <input id="customGetPath" value="chatInfo.rtSessionId">
+      <button id="getButton_customPath" type="button" class="btn btn-primary" onclick="getCustomPath()">Get</button><br />
       <pre id="getOutput"></pre>
     </div>
   </div>
+  <br />
+  <br />
 
-  <h3>command</h3>
-  <h4>command > Write StructuredContent</h4>
+  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#supported-commands" target="_blank">command</a></h3>
+  <h4>command: Write StructuredContent</h4>
   <i>To use the sample SC you must whitelist the image domain (https://www.crixeo.com/) in sitesettings: messaging.rich.content.valid.urls </i>
   <br>
   Content:
@@ -86,19 +89,32 @@
   Metadata (optional):
   <textarea class="form-control" rows="4" id="richContentMetadata"></textarea>
   <div class="btn-group" role="group">
-    <button id="sendRichContent" type="button" class="btn btn-default" onclick="sendRichContent()">Send</button>
-    <button id="revertRichContent" type="button" class="btn btn-default" onclick="populateSampleSC()">Restore Sample</button>
+    <button id="sendRichContent" type="button" class="btn btn-primary" onclick="sendRichContent()">Send</button>
+    <button id="revertRichContent" type="button" class="btn btn-warning" onclick="populateSampleSC()">Restore Sample</button>
   </div>
+  <br />
 
-  <h4>command > Write ChatLine</h4>
-  <input class="form-control" rows="10" id="chatLine" value="howdy pardner!">
+  <h4>command: Write ChatLine</h4>
+  <input class="form-control" id="chatLine" value="howdy pardner!">
   <div class="btn-group" role="group">
-    <button id="sendChatLine" type="button" class="btn btn-default" onclick="sendChatLine()">Write</button>
+    <button id="sendChatLine" type="button" class="btn btn-primary" onclick="sendChatLine()">Write</button>
   </div>
+  <br />
 
-  <h4>command > Send Notification</h4>
+  <h4>command: Send Notification</h4>
+  Send a notification to the agent's browser. <br />
   <div class="btn-group" role="group">
-    <button id="sendNotification" type="button" class="btn btn-default" onclick="sendNotification()">Notify</button>
+    <button id="sendNotification" type="button" class="btn btn-primary" onclick="sendNotification()">Notify</button>
+  </div>
+  <br />
+  <br />
+
+  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#dispose" target="_blank">Dispose</a></h3>
+  <div id="sdkButtons">
+    <div class="btn-group" role="group">
+      Dispose of the SDK. Once disposed the widget cannot be reinitialized and the page must be refreshed.<br />
+      <button type="button" class="btn btn-danger" onclick="sdkDispose()" id="dispose" disabled>Dispose</button>
+    </div>
   </div>
 </div>
 

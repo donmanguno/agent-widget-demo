@@ -159,6 +159,26 @@ const sdkInit = () => {
         visitorFocusedCallback: visitorFocusedCallback,
         visitorBlurredCallback: visitorBlurredCallback
     });
+    $('button#init').attr('disabled', 'disabled');
+    $('button#dispose').removeAttr('disabled');
+    bindDataSources().then(() => {
+        printLogLine(`[sdkInit] all data sources bound`)
+    }).catch(e => {
+        printLogLine(`[sdkInit] ERROR failed to bind data sources: ${e}`);
+    });
+};
+
+const sdkDispose = () => {
+    unbindDataSources().then(() => {
+        printLogLine('[sdkDispose] all data sources unbound');
+    }).catch(e => {
+        printLogLine(`[sdkDispose] ERROR failed to unbind data sources: ${e}`);
+    }).finally(() => {
+        lpTag.agentSDK.dispose();
+        printLogLine('[sdkDispose] SDK disposed');
+        $('button#init').removeAttr('disabled');
+        $('button#dispose').attr('disabled', 'disabled');
+    });
 };
 
 const switchToTab = (num) => {
@@ -167,15 +187,15 @@ const switchToTab = (num) => {
     $('div#tab_'+num).show()
 };
 
-const visitorFocusedCallback = (data) => {
-    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {
-        printLogLine('[visitorFocusedCallback] focused on '+visitorName)
+const visitorFocusedCallback = () => {
+    lpTag.agentSDK.get('visitorInfo.visitorName', (visitorName) => {
+        printLogLine(`[visitorFocusedCallback] focused on ${visitorName}`)
     })
 };
 
-const visitorBlurredCallback = (data) => {
-    lpTag.agentSDK.get('visitorInfo.visitorName', function(visitorName) {
-        printLogLine('[visitorBlurredCallback] '+visitorName+' unfocused')
+const visitorBlurredCallback = () => {
+    lpTag.agentSDK.get('visitorInfo.visitorName', (visitorName) => {
+        printLogLine(`[visitorBlurredCallback] ${visitorName} unfocused`)
     })
 };
 
@@ -197,7 +217,7 @@ const getQueryStringParams = () => {
 
 const printQueryStringParams = () => {
     for (let key in urlParams) {
-        if (urlParams[key]) {
+        if (urlParams.hasOwnProperty(key)) {
             $('#urlParamsTable').append($('<tr>')
                 .append($('<td>').text(key))
                 .append($('<td>').text(urlParams[key]))
@@ -215,7 +235,7 @@ const addBindIndicators = () => {
         buttonGroup.append($('<button>', {
             id: path,
             type: 'button',
-            class: 'btn btn-default',
+            class: 'btn btn-default btn-sm',
             text: path,
             on: { click: function() { toggleDataBind(this.id) } }
         }))
@@ -223,9 +243,15 @@ const addBindIndicators = () => {
 };
 
 const bindDataSources = () => {
-    for (let path in dataSources) {
-        bindDataSourcePromise(path)
-    }
+    return Promise.all(Object.keys(dataSources).map(source => {
+        return bindDataSource(source)
+    }));
+};
+
+const unbindDataSources = () => {
+    return Promise.all(Object.keys(dataSources).map(source => {
+        return unbindDataSource(source)
+    }));
 };
 
 const addFilterDropDown = () => {
@@ -282,7 +308,7 @@ const filterEvents = () => {
 	if (!$('input#showUnchanged')[0].checked) { $('.unchanged').hide() }
 };
 
-const bindDataSourcePromise = (path) => {
+const bindDataSource = (path) => {
     updateBindIndicator(path);
     return new Promise((resolve, reject) => {
         lpTag.agentSDK.bind(path,
@@ -290,19 +316,17 @@ const bindDataSourcePromise = (path) => {
             (err) => {
                 if (err) {
                     updateBindIndicator(path, 0);
-                    printLogLine('[bind] ERROR binding '+path+' failed');
                     reject(err);
                 } else {
                     dataSources[path].bound = true;
                     updateBindIndicator(path, 1);
-                    printLogLine('[bind] bound '+path);
                     resolve(true)
                 }
             })
     });
 };
 
-const unbindDataSourcePromise = (path) => {
+const unbindDataSource = (path) => {
     updateBindIndicator(path);
     return new Promise((resolve, reject) => {
         lpTag.agentSDK.unbind(path,
@@ -310,12 +334,10 @@ const unbindDataSourcePromise = (path) => {
             (err) => {
                 if (err) {
                     updateBindIndicator(path, 1);
-                    printLogLine('[unbind] ERROR unbinding '+path+' failed');
                     reject(err)
                 } else {
                     dataSources[path].bound = false;
                     updateBindIndicator(path, 0);
-                    printLogLine('[unbind] unbound '+path);
                     resolve(true)
                 }
             })
@@ -323,8 +345,19 @@ const unbindDataSourcePromise = (path) => {
 };
 
 const toggleDataBind = (path) => {
-    if (dataSources[path].bound) { unbindDataSourcePromise(path) }
-    else { bindDataSourcePromise(path) }
+    if (dataSources[path].bound) {
+        unbindDataSource(path).then(() => {
+            printLogLine(`[unbind] unbound ${path}`)
+        }).catch(e => {
+            printLogLine(`[unbind] ERROR unbinding ${path}: ${e}`)
+        })
+    } else {
+        bindDataSource(path).then(() => {
+            printLogLine(`[unbind] bound ${path}`)
+        }).catch(e => {
+            printLogLine(`[unbind] ERROR binding ${path}: ${e}`)
+        })
+    }
 };
 
 const updateBindIndicator = (path, state) => {
@@ -347,12 +380,12 @@ const populateSampleSC = () => {
 };
 
 const sendRichContent = () => {
-    lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.writeSC, {
-        json: JSON.parse($('textarea#richContent').val()),
-        metadata: JSON.parse($('textarea#richContentMetadata').val())
-    }, error => {
-        if (error) printLogLine(`[command > writeSC] ERROR ${error}`);
-        else printLogLine(`[command > writeSC] success`)
+    let data = { json: JSON.parse($('textarea#richContent').val()) };
+    let meta = $('textarea#richContentMetadata').val();
+    if (meta !== '') { data.metadata = meta }
+    lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.writeSC, data, error => {
+        if (error) printLogLine(`[command: writeSC] ERROR ${error}`);
+        else printLogLine(`[command: writeSC] success`)
     });
 };
 
@@ -360,8 +393,8 @@ const sendChatLine = () => {
     lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.write, {
         text: $('input#chatLine').val()
     }, error => {
-        if (error) printLogLine(`[command > write] ERROR ${error}`);
-        else printLogLine(`[command > write] success`)
+        if (error) printLogLine(`[command: write] ERROR ${error}`);
+        else printLogLine(`[command: write] success`)
     });
 };
 
@@ -376,7 +409,7 @@ const createGetButtons = () => {
         let button = $('<button>', {
             id: 'getButton_'+path,
             type: 'button',
-            class: 'btn btn-default',
+            class: 'btn btn-primary btn-sm',
             text: path,
             on: { click: function() { getCommand(this.id.substr(10)) } }
         });
@@ -399,8 +432,8 @@ const getCommand = (path) => {
 
 const sendNotification = () => {
     lpTag.agentSDK.command(lpTag.agentSDK.cmdNames.notify, {}, error => {
-        if (error) printLogLine(`[command > notify] ERROR ${error}`);
-        else printLogLine(`[command > notify] success`)
+        if (error) printLogLine(`[command: notify] ERROR ${error}`);
+        else printLogLine(`[command: notify] success`)
     })
 };
 
@@ -417,7 +450,6 @@ const printLogLine = (logLine) => {
 const init = () => {
 	sdkInit();
     addBindIndicators();
-	bindDataSources();
 	addFilterDropDown();
 	bindUnchangedFilter();
 	getQueryStringParams();
@@ -425,7 +457,7 @@ const init = () => {
 	populateSampleSC();
 	createGetButtons();
     switchToTab(selected);
-	printLogLine('[widget] initialized');
+	printLogLine(`[widget] initialized SDK version ${lpTag.agentSDK.v}`);
 };
 
 $(function(){
