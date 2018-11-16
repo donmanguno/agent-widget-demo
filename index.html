@@ -1,129 +1,281 @@
 <!doctype html>
 <html>
+
+<!--<editor-fold defaultstate="collapsed" desc="HTML Head">-->
 <head>
   <meta charset="utf-8">
   <title>liveperson widget</title>
   <meta name="viewport" content="user-scalable=0, width=device-width, initial-scale=1.0,  minimum-scale=1.0, maximum-scale=1.0">
-  <link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet"  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
   <link rel="stylesheet"  href="lib/jquery.json-viewer.css">
   <style>
     td{width:1px;white-space:nowrap;}
   </style>
   <script
-    src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
-    crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E="
+      crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
   <script src="https://lpcdn.lpsnmedia.net/webagent/client-SDK.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/core.min.js"></script>
   <script src="lib/jquery.json-viewer.js"></script>
   <script src="widgetwidget.js"></script>
 </head>
+<!--</editor-fold>-->
+
 <body>
 
-<!--Header-->
-<ul class="nav nav-tabs">
-  <li role="presentation" id="btn_1" onclick="switchToTab(1)" class="navtab"><a href="#">Visit Info Parameters</a></li>
-  <li role="presentation" id="btn_2" onclick="switchToTab(2)" class="navtab active"><a href="#">Public Model Updates</a></li>
-  <li role="presentation" id="btn_3" onclick="switchToTab(3)" class="navtab"><a href="#">Other SDK Methods</a></li>
-  <li role="presentation" id="btn_4" onclick="switchToTab(4)" class="navtab"><a href="#">Widget Log</a></li>
-</ul>
+<!--<editor-fold defaultstate="collapsed" desc="Nav Tabs">-->
+<nav>
+  <div class="nav nav-tabs" id="nav-tab" role="tablist">
+    <a href="#nav-params" class="nav-item nav-link" id="nav-params-tab" data-toggle="tab">Visit Info Params</a>
+    <a href="#nav-model" class="nav-item nav-link active" id="nav-model-tab" data-toggle="tab">Public Model Updates</a>
+    <a href="#nav-methods" class="nav-item nav-link" id="nav-methods-tab" data-toggle="tab">Other SDK Methods</a>
+    <!--<a href="#nav-auth" class="nav-item nav-link" id="nav-auth-tab" data-toggle="tab">Auth</a>-->
+    <a href="#nav-log" class="nav-item nav-link" id="nav-log-tab" data-toggle="tab">Widget Log</a>
+  </div>
+</nav>
+<!--</editor-fold>-->
 
-<!--Tab 1-->
-<div class="col-12 tab" id="tab_1">
-  <h2>Visit Info Parameters</h2>
+<!--<editor-fold defaultstate="expanded" desc="Body">-->
+<div class="container-fluid">
+  <div class="tab-content py-2" id="nav-tabContent">
 
-  <table class="table table-condensed" id="urlParamsTable">
-    <tr><th>Key</th><th>Value</th></tr>
-  </table>
-</div>
+    <!--<editor-fold defaultstate="expanded" desc="Params Tab">-->
+    <div class="tab-pane" id="nav-params" role="tabpanel">
+      <div class="row">
+        <div class="col table-responsive">
 
-<!--Tab 2-->
-<div class="col-12 tab" id="tab_2">
-  <h2>Client SDK Binding Output</h2>
+          <h2>Visit Info Parameters</h2>
+          <p>The widget was loaded with the following querystring parameters:</p>
 
-  Bind state indicators (click to toggle bind/unbind the logging function):
-  <div class="btn-toolbar" role="toolbar">
-    <div class="btn-group" role="group" id="bindIndicators">
+          <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+            </tr>
+            </thead>
+            <tbody id="urlParamsTable"></tbody>
+          </table>
 
+        </div>
+      </div>
     </div>
-  </div>
+    <!--</editor-fold>-->
 
-  <br />
-  <br />
+    <!--<editor-fold defaultstate="expanded" desc="Public Model Updates Tab">-->
+    <div class="tab-pane show active" id="nav-model" role="tabpanel">
+      <div class="row">
+        <div class="col table-responsive">
+          <h2>Client SDK Binding Output</h2>
 
-  Event Filter: <select id="eventFilter" title="eventFilter"></select> |
-  <!--<input id="showUnchanged" type="checkbox"> Show unchanged updates |-->
-  <button class="btn btn-default" id="toggleCollapse" onclick="bindToggleCollapse()">Expand All</button>
+          Bind state indicators (click to bind/unbind the logging function):
+          <div id="bindIndicators"></div>
+          <br />
 
-  <table class="table table-condensed" id="bindOutput">
-    <tr><th>Timestamp</th><th>Key</th><th>New Value</th></tr>
-  </table>
-</div>
+          Event Filter: <select id="eventFilter" title="eventFilter"></select> |
+          <input id="showUnchanged" type="checkbox"> Show unchanged updates |
+          <div class="btn-group mb-1" role="group">
+            <button class="btn btn-info btn-sm" id="bindExpand" onclick="bindExpand()">Expand All</button>
+            <button class="btn btn-info btn-sm" id="bindCollapse" onclick="bindCollapse()">Collapse All</button>
+          </div>
 
-<!--Tab 3-->
-<div class="col-12 tab" id="tab_3">
-  <h2>Other SDK Methods</h2>
-  <a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html" target="_blank">Agent Workspace Widget SDK Methods</a>
-  <br />
 
-  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#get" target="_blank">get</a></h3>
-  <div id="getButtons">
-    <div>
-      <b>Predefined paths:</b>
-      <div id="predefinedGetButtons"></div>
-      <br />
-      <b><label for="customGetPath"><a href="https://developers.liveperson.com/agent-workspace-sdk-public-model.html" target="_blank">Custom path:</a></label></b> <input id="customGetPath" value="chatInfo.rtSessionId">
-      <button id="getButton_customPath" type="button" class="btn btn-primary" onclick="getCustomPath()">Get</button><br />
-      <pre id="getOutput"></pre>
+          <table class="table table-sm table-striped">
+            <thead class="thead-dark">
+            <tr>
+              <th>Timestamp</th>
+              <th>Key</th>
+              <th>New Value</th>
+            </tr>
+            </thead>
+            <tbody id="bindOutput"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-  <br />
-  <br />
+    <!--</editor-fold>-->
 
-  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#supported-commands" target="_blank">command</a></h3>
-  <h4>command: Write StructuredContent</h4>
-  <i>To use the sample SC you must whitelist the image domain (https://www.crixeo.com/) in sitesettings: messaging.rich.content.valid.urls </i>
-  <br>
-  <label for="richContent">Content:</label>
-  <textarea class="form-control" rows="10" id="richContent"></textarea>
-  <label for="richContentMetadata">Metadata (optional):</label>
-  <textarea class="form-control" rows="4" id="richContentMetadata"></textarea>
-  <div class="btn-group" role="group">
-    <button id="sendRichContent" type="button" class="btn btn-primary" onclick="sendRichContent()">Send</button>
-    <button id="revertRichContent" type="button" class="btn btn-warning" onclick="populateSampleSC()">Restore Sample</button>
-  </div>
-  <br />
+    <!--<editor-fold defaultstate="expanded" desc="SDK Methods Tab">-->
+    <div class="tab-pane" id="nav-methods" role="tabpanel">
+      <div class="row">
+        <div class="col">
+          <h2>Other SDK Methods <a href="https://developers.liveperson.com/agent-workspace-widget-sdk-methods.html" target="_blank">(doc)</a></h2>
 
-  <h4>command: Write ChatLine</h4>
-  <input class="form-control" id="chatLine" value="howdy pardner!" title="chatLine">
-  <div class="btn-group" role="group">
-    <button id="sendChatLine" type="button" class="btn btn-primary" onclick="sendChatLine()">Write</button>
-  </div>
-  <br />
+          <!--<editor-fold defaultstate="collapsed" desc="Get Method">-->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h3>get <a href="https://developers.liveperson.com/agent-workspace-widget-sdk-methods.html#get" target="_blank">(doc)</a></h3>
+            </div>
+            <div class="card-body">
+              <div id="getButtons">
+                <b>Predefined paths:</b>
+                <div id="predefinedGetButtons"></div>
+                <div class="input-group input-group-sm">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Custom Path:</span>
+                  </div>
+                  <input type="text" class="form-control" id="customGetPath" value="chatInfo.rtSessionId" title="customGetPath">
+                  <div class="input-group-append">
+                    <button id="getButton_customPath" type="button" class="btn btn-outline-primary" onclick="getCustomPath()">Get</button>
+                  </div>
+                </div>
+                <div class="card mt-2 p-3">
+                  <pre class="mb-0"><code id="getOutput"></code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--</editor-fold>-->
 
-  <h4>command: Send Notification</h4>
-  Send a notification to the agent's browser. <br />
-  <div class="btn-group" role="group">
-    <button id="sendNotification" type="button" class="btn btn-primary" onclick="sendNotification()">Notify</button>
-  </div>
-  <br />
-  <br />
+          <!--<editor-fold defaultstate="collapsed" desc="Command Method">-->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h3>command <a href="https://developers.liveperson.com/agent-workspace-widget-sdk-methods.html#command" target="_blank">(doc)</a></h3>
+            </div>
+            <div class="card-body">
 
-  <h3><a href="https://developers.liveperson.com/agent-workspace-sdk-methods.html#dispose" target="_blank">Dispose</a></h3>
-  <div id="sdkButtons">
-    <div class="btn-group" role="group">
-      Dispose of the SDK. Once disposed the widget cannot be reinitialized and the page must be refreshed.<br />
-      <button type="button" class="btn btn-danger" onclick="sdkDispose()" id="dispose" disabled>Dispose</button>
+              <h5>Write StructuredContent</h5>
+              <i>Note: To use the sample SC you must whitelist the image domain (https://i.pinimg.com/) in sitesettings: messaging.rich.content.valid.urls </i>
+
+              <div class="form-group mt-2">
+                <label for="richContent">Content:</label>
+                <textarea class="form-control" rows="10" id="richContent"></textarea>
+                <label for="richContentMetadata">Metadata (optional):</label>
+                <textarea class="form-control" rows="4" id="richContentMetadata"></textarea>
+                <div class="btn-group" role="group">
+                  <button id="sendRichContent" type="button" class="btn btn-primary" onclick="sendRichContent()">Send SC</button>
+                  <button id="revertRichContent" type="button" class="btn btn-warning" onclick="populateSampleSC()">Restore Sample SC</button>
+                </div>
+              </div>
+
+              <h5>Write ChatLine</h5>
+              <div class="form-group mt-2">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button id="sendChatLine" type="button" class="btn btn-primary" onclick="sendChatLine()">Write</button>
+                  </div>
+                  <input class="form-control" id="chatLine" value="howdy pardner!" title="chatLine">
+                </div>
+              </div>
+
+              <h5>Send Notification</h5>
+              <div class="form-group mt-2">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button id="sendNotification" type="button" class="btn btn-primary" onclick="sendNotification()">Notify</button>
+                  </div>
+                  <input class="form-control" readonly value="Send a notification to the agent's browser." title="readonlyNotification">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--</editor-fold>-->
+
+          <!--<editor-fold defaultstate="collapsed" desc="SetConsumerProfile Method">-->
+          <!--<div class="card mt-4">-->
+            <!--<div class="card-header">-->
+              <!--<h3>setConsumerProfile <a href="https://developers.liveperson.com/agent-workspace-widget-sdk-methods.html#setconsumerprofile" target="_blank">(doc)</a></h3>-->
+            <!--</div>-->
+            <!--<div class="card-body">-->
+              <!--<div id="consumerProfileFields">-->
+                <!--<form>-->
+                  <!--<div class="form-row">-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-3">-->
+                      <!--<label for="firstName">First Name</label>-->
+                      <!--<input class="form-control form-control-sm" id="firstName" value="" title="firstName">-->
+                    <!--</div>-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-3">-->
+                      <!--<label for="lastName">Last Name</label>-->
+                      <!--<input class="form-control form-control-sm" id="lastName" value="" title="lastName">-->
+                    <!--</div>-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-3">-->
+                      <!--<label for="email">Email</label>-->
+                      <!--<input class="form-control form-control-sm" id="email" value="" title="email">-->
+                    <!--</div>-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-3">-->
+                      <!--<label for="phone">Phone</label>-->
+                      <!--<input class="form-control form-control-sm" id="phone" value="" title="phone">-->
+                    <!--</div>-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-6">-->
+                      <!--<label for="avatarUrl">Avatar URL</label>-->
+                      <!--<input class="form-control form-control-sm" id="avatarUrl" value="" title="avatarUrl">-->
+                    <!--</div>-->
+                    <!--<div class="form-group col-sm-6 col-md-4 col-lg-6">-->
+                      <!--<label for="backgndImgUri">Background Image URL</label>-->
+                      <!--<input class="form-control form-control-sm" id="backgndImgUri" value="" title="backgndImgUri">-->
+                    <!--</div>-->
+                  <!--</div>-->
+                <!--</form>-->
+                <!--<div class="btn-group" role="group">-->
+                  <!--<button id="setConsumerProfile" type="button" class="btn btn-primary" onclick="setConsumerProfile()">Set</button>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+          <!--</editor-fold>-->
+
+          <!--<editor-fold defaultstate="collapsed" desc="Dispose Method">-->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h3>dispose <a href="https://developers.liveperson.com/agent-workspace-widget-sdk-methods.html#dispose" target="_blank">(doc)</a></h3>
+
+            </div>
+            <div class="card-body">
+              <div class="form-group mt-2">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <button id="dispose" type="button" class="btn btn-danger" onclick="sdkDispose()">Dispose</button>
+                  </div>
+                  <input class="form-control" readonly value="Dispose of the SDK. Once disposed the widget cannot be reinitialized and the page must be refreshed." title="readonlyDispose">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--</editor-fold>-->
+
+        </div>
+      </div>
     </div>
+    <!--</editor-fold>-->
+
+    <!--<editor-fold defaultstate="expanded" desc="Authorization Tab">-->
+    <div class="tab-pane" id="nav-auth" role="tabpanel">
+      <div class="row">
+        <div class="col">
+          <h2>Authorization for Special Functions</h2>
+          <p>Some of the special functions of this widget require authorization. Enter the bearer token from your current session here to enable those features. Note that you will only be able to take actions that your user is authorized to take.</p>
+          <div class="form-group">
+            <label for="bearerToken">Current Bearer: <span id="currentBearer">undefined</span></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <button id="setBearer" type="button" class="btn btn-primary" onclick="setBearer()">Set</button>
+              </div>
+              <input type="text" class="form-control" id="bearerToken" placeholder="enter bearer token here" name="bearer">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--</editor-fold>-->
+
+    <!--<editor-fold defaultstate="expanded" desc="Widget Log Tab">-->
+    <div class="tab-pane" id="nav-log" role="tabpanel">
+      <div class="row">
+        <div class="col">
+          <h2>Widget Log</h2>
+          <div class="card p-3">
+            <pre id="logOutput" class="mb-0"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--</editor-fold>-->
+
   </div>
 </div>
-
-<!--Tab 4-->
-<div class="col-12 tab" id="tab_4">
-  <h2>Widget Log</h2>
-  <pre id="logOutput"></pre>
-</div>
-
+<!--</editor-fold>-->
 
 </body>
 </html>
