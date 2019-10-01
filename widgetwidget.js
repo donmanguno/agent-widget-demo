@@ -1,5 +1,5 @@
 "use strict";
-
+// Delay SDK initialization by this many ms
 const initDelay = 250;
 const dataSources = {
       chatInfo: { bound: null },
