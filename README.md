@@ -6,10 +6,6 @@ This is a widget that is designed to demonstrate and test all of the functionali
 ****
 Just clone the project and edit index.html and widgetwidget.js
 
-## Deployment
-
-Upload the file to supportal.lpnet.com:/HD/users/support/widget
-
 ## Built With
 
 * [Lodash 4.17.11](https://lodash.com/docs/4.17.11)
